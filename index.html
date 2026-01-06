@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frame Checker - Picture Frame Alignment Detector</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📐 Frame Checker</h1>
+            <p>Real-time picture frame alignment detector</p>
+        </header>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="cameraSelect">Select Camera:</label>
+                <select id="cameraSelect">
+                    <option value="">Loading cameras...</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="sensitivity">Detection Sensitivity:</label>
+                <input type="range" id="sensitivity" min="1" max="10" value="5">
+                <span id="sensitivityValue">5</span>
+            </div>
+
+            <div class="control-group">
+                <button id="startBtn" class="btn btn-primary">Start Camera</button>
+                <button id="stopBtn" class="btn btn-secondary" disabled>Stop Camera</button>
+            </div>
+        </div>
+
+        <div class="video-container">
+            <video id="videoElement" autoplay playsinline></video>
+            <canvas id="canvasOutput"></canvas>
+        </div>
+
+        <div class="status-panel">
+            <div id="statusText">Ready to start. Click "Start Camera" to begin.</div>
+            <div id="framesDetected">Frames detected: 0</div>
+        </div>
+
+        <div class="info-panel">
+            <h3>How to use:</h3>
+            <ol>
+                <li>Click "Start Camera" to begin detection</li>
+                <li>Point your camera at picture frames on a wall</li>
+                <li>The app will highlight detected frames with:
+                    <ul>
+                        <li><span class="badge green">GREEN</span> - Frame is perfectly vertical (±2°)</li>
+                        <li><span class="badge yellow">YELLOW</span> - Slightly tilted (2°-5°)</li>
+                        <li><span class="badge red">RED</span> - Significantly tilted (>5°)</li>
+                    </ul>
+                </li>
+                <li>Tilt information will be displayed on each frame</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Load OpenCV.js -->
+    <script async src="https://docs.opencv.org/4.5.2/opencv.js" onload="onOpenCvReady();" onerror="onOpenCvError();"></script>
+    
+    <!-- Application scripts -->
+    <script src="camera.js"></script>
+    <script src="sensor.js"></script>
+    <script src="detector.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

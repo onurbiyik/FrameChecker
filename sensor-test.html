@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Test - Frame Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .data-display {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .data-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .data-box h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 14px;
+        }
+        .data-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .data-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .tilt-visual {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            position: relative;
+            border: 2px solid #333;
+            border-radius: 50%;
+            background: #fff;
+        }
+        .tilt-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 80px;
+            background: #007bff;
+            transform-origin: bottom center;
+            transition: transform 0.1s ease;
+        }
+        .center-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background: #dc3545;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Sensor Test Page</h1>
+        <p>This page tests the device orientation sensors used by Frame Checker.</p>
+        
+        <div id="status" class="status info">
+            Click "Start Sensors" to begin testing
+        </div>
+        
+        <div>
+            <button id="startBtn">Start Sensors</button>
+            <button id="stopBtn" disabled>Stop Sensors</button>
+            <button id="resetBtn">Reset Smoothing</button>
+        </div>
+        
+        <div class="data-display">
+            <div class="data-box">
+                <h3>Device Tilt</h3>
+                <div class="data-value" id="deviceTilt">0.0°</div>
+                <div class="data-label">Combined tilt value used for frame detection</div>
+            </div>
+            
+            <div class="data-box">
+                <h3>Beta (Forward/Back)</h3>
+                <div class="data-value" id="beta">0.0°</div>
+                <div class="data-label">Phone tilting forward/backward</div>
+            </div>
+            
+            <div class="data-box">
+                <h3>Gamma (Left/Right)</h3>
+                <div class="data-value" id="gamma">0.0°</div>
+                <div class="data-label">Phone tilting left/right (main axis)</div>
+            </div>
+            
+            <div class="data-box">
+                <h3>Alpha (Compass)</h3>
+                <div class="data-value" id="alpha">0.0°</div>
+                <div class="data-label">Compass direction</div>
+            </div>
+        </div>
+        
+        <h3 style="text-align: center;">Visual Tilt Indicator</h3>
+        <div class="tilt-visual">
+            <div class="tilt-indicator" id="tiltIndicator"></div>
+            <div class="center-dot"></div>
+        </div>
+        
+        <div class="data-display">
+            <div class="data-box">
+                <h3>Raw Gamma</h3>
+                <div class="data-value" id="rawGamma">0.0°</div>
+                <div class="data-label">Unfiltered sensor reading</div>
+            </div>
+            
+            <div class="data-box">
+                <h3>Smoothed Gamma</h3>
+                <div class="data-value" id="smoothedGamma">0.0°</div>
+                <div class="data-label">After EMA and rolling average</div>
+            </div>
+            
+            <div class="data-box">
+                <h3>Stable Gamma</h3>
+                <div class="data-value" id="stableGamma">0.0°</div>
+                <div class="data-label">After deadband filtering</div>
+            </div>
+            
+            <div class="data-box">
+                <h3>Sensor Status</h3>
+                <div class="data-value" id="sensorStatus">Inactive</div>
+                <div class="data-label">Current sensor state</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 4px;">
+            <h4 style="margin: 0 0 10px 0;">💡 Testing Tips</h4>
+            <ul style="margin: 5px 0;">
+                <li>Hold your device and tilt it left/right to see gamma change</li>
+                <li>Notice how smoothing reduces jitter from hand shake</li>
+                <li>The "Device Tilt" value is what Frame Checker uses</li>
+                <li>On iOS, you'll need to grant permission when prompted</li>
+                <li>Desktop computers typically don't have these sensors</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script src="sensor.js"></script>
+    <script>
+        let sensorManager;
+        let updateInterval;
+        
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const statusDiv = document.getElementById('status');
+        
+        function updateStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+        
+        function updateDisplay() {
+            if (!sensorManager || !sensorManager.isActiveAndReady()) {
+                return;
+            }
+            
+            const raw = sensorManager.getRawOrientation();
+            const smoothed = sensorManager.getSmoothedOrientation();
+            const stable = sensorManager.getStableOrientation();
+            const deviceTilt = sensorManager.getDeviceTilt();
+            
+            // Update all displays
+            document.getElementById('deviceTilt').textContent = deviceTilt.toFixed(1) + '°';
+            document.getElementById('beta').textContent = stable.beta.toFixed(1) + '°';
+            document.getElementById('gamma').textContent = stable.gamma.toFixed(1) + '°';
+            document.getElementById('alpha').textContent = raw.alpha.toFixed(1) + '°';
+            
+            document.getElementById('rawGamma').textContent = raw.gamma.toFixed(2) + '°';
+            document.getElementById('smoothedGamma').textContent = smoothed.gamma.toFixed(2) + '°';
+            document.getElementById('stableGamma').textContent = stable.gamma.toFixed(2) + '°';
+            document.getElementById('sensorStatus').textContent = 'Active';
+            
+            // Update visual indicator
+            const indicator = document.getElementById('tiltIndicator');
+            indicator.style.transform = `translateX(-50%) translateY(-100%) rotate(${deviceTilt}deg)`;
+            
+            // Color code based on tilt
+            const absTilt = Math.abs(deviceTilt);
+            if (absTilt <= 2) {
+                indicator.style.background = '#28a745'; // Green
+            } else if (absTilt <= 5) {
+                indicator.style.background = '#ffc107'; // Yellow
+            } else {
+                indicator.style.background = '#dc3545'; // Red
+            }
+        }
+        
+        async function startSensors() {
+            try {
+                updateStatus('Initializing sensors...', 'info');
+                
+                sensorManager = new SensorManager();
+                
+                if (!sensorManager.isSupported) {
+                    updateStatus('Device orientation sensors are not supported on this device/browser', 'error');
+                    return;
+                }
+                
+                const started = await sensorManager.start();
+                
+                if (started) {
+                    updateStatus('Sensors active! Tilt your device to see changes.', 'success');
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    
+                    // Start updating display
+                    updateInterval = setInterval(updateDisplay, 50); // 20 fps
+                } else {
+                    updateStatus('Failed to start sensors. Permission may be denied.', 'error');
+                }
+            } catch (error) {
+                updateStatus(`Error: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+        
+        function stopSensors() {
+            if (sensorManager) {
+                sensorManager.stop();
+                updateStatus('Sensors stopped.', 'info');
+            }
+            
+            if (updateInterval) {
+                clearInterval(updateInterval);
+                updateInterval = null;
+            }
+            
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            document.getElementById('sensorStatus').textContent = 'Inactive';
+        }
+        
+        function resetSmoothing() {
+            if (sensorManager && sensorManager.isActiveAndReady()) {
+                sensorManager.reset();
+                updateStatus('Smoothing buffers reset.', 'success');
+                setTimeout(() => {
+                    updateStatus('Sensors active! Tilt your device to see changes.', 'success');
+                }, 2000);
+            }
+        }
+        
+        startBtn.addEventListener('click', startSensors);
+        stopBtn.addEventListener('click', stopSensors);
+        resetBtn.addEventListener('click', resetSmoothing);
+        
+        // Initial status
+        const sensorCheck = new SensorManager();
+        if (!sensorCheck.isSupported) {
+            updateStatus('Device orientation sensors not supported on this device', 'error');
+            startBtn.disabled = true;
+        }
+    </script>
+</body>
+</html>
