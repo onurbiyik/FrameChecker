@@ -398,18 +398,18 @@ function updateCameraTiltInfo() {
  */
 function updateSensorInfo() {
     if (sensorManager && sensorManager.isActiveAndReady()) {
-        const deviceTilt = sensorManager.getDeviceTilt();
-        if (Math.abs(deviceTilt) > 0.5) {
-            const sensorInfo = ` | Device: ${deviceTilt.toFixed(1)}°`;
-            if (!framesDetectedText.textContent.includes('Device:')) {
-                framesDetectedText.textContent += sensorInfo;
-            } else {
-                // Update existing sensor info
-                framesDetectedText.textContent = framesDetectedText.textContent.replace(
-                    /\| Device:.*?(\||$)/,
-                    sensorInfo + '$1'
-                );
-            }
+        const orientation = sensorManager.getDeviceOrientation();
+        const modeText = orientation.mode === 'landscape' ? '🔄 Landscape' : '📱 Portrait';
+        const sensorInfo = ` | Device: ${modeText} ${orientation.tilt.toFixed(1)}°`;
+        
+        if (!framesDetectedText.textContent.includes('Device:')) {
+            framesDetectedText.textContent += sensorInfo;
+        } else {
+            // Update existing sensor info
+            framesDetectedText.textContent = framesDetectedText.textContent.replace(
+                /\| Device:.*?(\||$)/,
+                sensorInfo + '$1'
+            );
         }
     }
 }

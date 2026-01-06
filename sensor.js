@@ -219,27 +219,64 @@ class SensorManager {
         // Use stable (deadbanded) orientation
         const { beta, gamma } = this.lastStableOrientation;
 
+        // Detect device orientation mode
+        // beta: front-to-back tilt (0° = vertical/upright, ±90° = horizontal/flat)
+        // gamma: left-right tilt (-90° to 90°)
+        
+        // When device is in landscape mode (sideways), beta approaches ±90°
+        const isLandscape = Math.abs(beta) > 60;
+        
         // For most camera viewing angles, gamma (left-right tilt) is what matters
         // When holding phone in portrait mode to view a wall:
         // - gamma represents the phone's roll (rotation around viewing axis)
         // - This directly affects how vertical lines appear
         
-        // Normalize gamma to -90 to 90 range (typical holding range)
-        let normalizedGamma = gamma;
+        // When in landscape mode, the axes change:
+        // - The phone is rotated 90°, so gamma becomes less relevant
+        // - We need to use beta differently
         
-        // Handle different phone orientations
-        // When phone is held vertically (portrait), gamma is primary
-        // When phone is tilted forward/back significantly, beta matters more
-        
-        if (Math.abs(beta) < 45) {
-            // Phone mostly upright - use gamma
-            return normalizedGamma;
+        let tilt;
+        if (isLandscape) {
+            // In landscape mode, calculate tilt based on how much the device
+            // deviates from horizontal (±90°)
+            // When beta is close to 90 or -90, the device is horizontal
+            const horizontalDeviation = Math.abs(Math.abs(beta) - 90);
+            // Use gamma for the actual tilt direction in landscape
+            tilt = gamma;
         } else {
-            // Phone tilted forward/back significantly
-            // Use a combination weighted by how vertical the phone is
-            const verticalFactor = Math.abs(Math.cos(beta * Math.PI / 180));
-            return gamma * verticalFactor;
+            // Portrait mode - use gamma as primary tilt indicator
+            if (Math.abs(beta) < 45) {
+                // Phone mostly upright - use gamma
+                tilt = gamma;
+            } else {
+                // Phone tilted forward/back significantly
+                // Use a combination weighted by how vertical the phone is
+                const verticalFactor = Math.abs(Math.cos(beta * Math.PI / 180));
+                tilt = gamma * verticalFactor;
+            }
         }
+        
+        return tilt;
+    }
+    
+    /**
+     * Get device orientation mode (portrait or landscape)
+     * Returns object with orientation and tilt
+     */
+    getDeviceOrientation() {
+        if (!this.isActive || !this.isPermissionGranted) {
+            return { mode: 'unknown', tilt: 0 };
+        }
+
+        const { beta, gamma } = this.lastStableOrientation;
+        const isLandscape = Math.abs(beta) > 60;
+        
+        return {
+            mode: isLandscape ? 'landscape' : 'portrait',
+            tilt: this.getDeviceTilt(),
+            beta: beta,
+            gamma: gamma
+        };
     }
 
     /**

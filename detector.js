@@ -489,10 +489,30 @@ class FrameDetector {
                 status = 'Tilted';
             }
 
-            // Draw rectangle around frame
+            // Draw polygon around frame using actual corners for proper perspective
             ctx.strokeStyle = color;
             ctx.lineWidth = 3;
-            ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+            
+            if (frame.corners && frame.corners.length >= 4) {
+                // Sort corners to draw them in proper order
+                const sorted = this.sortCorners(frame.corners.slice(0, 4));
+                
+                // Draw polygon connecting the corners
+                ctx.beginPath();
+                ctx.moveTo(sorted.topLeft.x, sorted.topLeft.y);
+                ctx.lineTo(sorted.topRight.x, sorted.topRight.y);
+                ctx.lineTo(sorted.bottomRight.x, sorted.bottomRight.y);
+                ctx.lineTo(sorted.bottomLeft.x, sorted.bottomLeft.y);
+                ctx.closePath();
+                ctx.stroke();
+                
+                // Also fill with semi-transparent color for better visibility
+                ctx.fillStyle = color + '20'; // Add alpha for transparency
+                ctx.fill();
+            } else {
+                // Fallback to rectangle if corners not available
+                ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+            }
 
             // Draw tilt information
             ctx.fillStyle = color;
