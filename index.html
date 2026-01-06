@@ -68,13 +68,13 @@
         </div>
     </div>
 
-    <!-- Load OpenCV.js -->
-    <script async src="https://docs.opencv.org/4.5.2/opencv.js" onload="onOpenCvReady();" onerror="onOpenCvError();"></script>
-    
-    <!-- Application scripts -->
+    <!-- Application scripts - Load before OpenCV so callbacks are defined -->
     <script src="camera.js"></script>
     <script src="sensor.js"></script>
     <script src="detector.js"></script>
     <script src="app.js"></script>
+    
+    <!-- Load OpenCV.js after app scripts -->
+    <script async src="https://docs.opencv.org/4.5.2/opencv.js" onload="onOpenCvReady();" onerror="onOpenCvError();"></script>
 </body>
 </html>

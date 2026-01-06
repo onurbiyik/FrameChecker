@@ -8,6 +8,8 @@ let sensorManager;
 let isRunning = false;
 let animationFrameId = null;
 let openCvReady = false;
+let lastProcessTime = 0;
+const MIN_PROCESS_INTERVAL = 33; // Minimum 33ms between frames (~30fps max)
 
 // DOM elements
 const videoElement = document.getElementById('videoElement');
@@ -274,6 +276,14 @@ function processFrame() {
     if (!isRunning || !openCvReady) {
         return;
     }
+
+    // Throttle processing to avoid performance issues
+    const now = performance.now();
+    if (now - lastProcessTime < MIN_PROCESS_INTERVAL) {
+        animationFrameId = requestAnimationFrame(processFrame);
+        return;
+    }
+    lastProcessTime = now;
 
     try {
         // Detect frames in current video frame
