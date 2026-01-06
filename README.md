@@ -77,50 +77,6 @@ The result: You can point your camera at a frame with slightly shaky hands and g
 - A camera (webcam or phone camera)
 - A local web server
 
-### Installation
-
-1. Ensure you're in the FrameChecker directory:
-   ```
-   cd C:\TEMP\FrameChecker
-   ```
-
-2. Start a local web server using one of these methods:
-
-   **Option A: Using Python**
-   ```bash
-   # Python 3
-   python -m http.server 8000
-   
-   # Python 2
-   python -m SimpleHTTPServer 8000
-   ```
-
-   **Option B: Using Node.js (http-server)**
-   ```bash
-   # Install http-server globally (one time)
-   npm install -g http-server
-   
-   # Run server
-   http-server -p 8000
-   ```
-
-   **Option C: Using PowerShell (Windows)**
-   ```powershell
-   # Run the included server script
-   .\server.ps1
-   ```
-
-   **Option D: Using VS Code Live Server Extension**
-   - Install "Live Server" extension in VS Code
-   - Right-click on `index.html` and select "Open with Live Server"
-
-3. Open your browser and navigate to:
-   ```
-   http://localhost:8000
-   ```
-
-4. Grant camera permissions when prompted
-
 ### Usage
 
 1. Click **"Start Camera"** to begin
@@ -130,27 +86,28 @@ The result: You can point your camera at a frame with slightly shaky hands and g
    - Click "Enable Sensors" button (iOS only) to activate gyroscope for better accuracy
 3. Select your camera from the dropdown if you have multiple cameras
 4. Point the camera at picture frames on a wall
-4. The app will:
+5. The app will:
    - Detect rectangular frames
    - Highlight them with colored boxes
    - Show the tilt angle
    - Indicate the direction of tilt
 
-5. Adjust **Detection Sensitivity** if frames aren't being detected:
+6. Adjust **Detection Sensitivity** if frames aren't being detected:
    - Lower values (1-3): More strict detection
    - Medium values (4-6): Balanced (default is 5)
    - Higher values (7-10): More lenient detection
 
-6. Adjust **Smoothing Level** to control measurement stability:
+7. Adjust **Smoothing Level** to control measurement stability:
    - Lower values (1-3): Maximum smoothing, most stable readings
    - Medium values (4-6): Balanced (default is 5)
    - Higher values (7-10): Minimum smoothing, most responsive readings
 
-7. Click **📷 Save Snapshot** to download the current view with all tilt measurements and annotations
+8. Click **📷 Save Snapshot** to download the current view with all tilt measurements and annotations
 
 ### Testing Sensors
 
 To verify that device sensors are working properly, open [sensor-test.html](sensor-test.html) in your browser. This test page shows:
+
 - Real-time sensor readings
 - Smoothing effects
 - Visual tilt indicator
