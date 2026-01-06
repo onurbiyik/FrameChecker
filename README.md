@@ -162,7 +162,7 @@ This is helpful for debugging sensor issues or understanding how the smoothing w
 
 ### Files Structure
 
-```
+```text
 FrameChecker/
 ├── index.html              # Main HTML page
 ├── sensor-test.html        # Sensor testing/debugging page
@@ -179,30 +179,12 @@ FrameChecker/
 
 ### Architecture
 
-```
-┌─────────────┐         ┌──────────────┐
-│   Camera    │         │   Sensors    │
-│   (WebRTC)  │         │ (Gyro/Accel) │
-└──────┬──────┘         └──────┬───────┘
-       │                       │
-       │ Video Feed            │ Orientation Data
-       │                       │
-       ▼                       ▼
-┌─────────────┐         ┌──────────────┐
-│  detector.js│◄────────┤  sensor.js   │
-│   OpenCV    │         │  Smoothing   │
-│  Analysis   │         │  EMA + Buffer│
-└──────┬──────┘         └──────────────┘
-       │
-       │ Sensor Fusion (70/30)
-       │ + Frame Stabilization
-       │
-       ▼
-┌─────────────┐
-│   Canvas    │
-│  Display    │
-│  (Results)  │
-└─────────────┘
+```mermaid
+graph TD
+   A[Camera<br/>WebRTC] -->|Video Feed| C[detector.js<br/>OpenCV Analysis]
+   B[Sensors<br/>Gyro/Accel] -->|Orientation Data| D[sensor.js<br/>Smoothing<br/>EMA + Buffer]
+   D --> C
+   C -->|Sensor Fusion 70/30<br/>+ Frame Stabilization| E[Canvas<br/>Display<br/>Results]
 ```
 
 ### Detection Algorithm
@@ -229,7 +211,8 @@ FrameChecker/
 
 **Note**: HTTPS or localhost is required for camera access due to browser security policies.
 
-**Sensor Support**: 
+**Sensor Support**:
+
 - Most modern smartphones (iOS, Android) support device orientation sensors
 - Desktop/laptop devices typically don't have orientation sensors (camera-only mode)
 - The app automatically detects and uses sensors when available
@@ -238,12 +221,14 @@ FrameChecker/
 ## Troubleshooting
 
 ### Camera not working
+
 - Ensure you've granted camera permissions
 - Check if another application is using the camera
 - Try refreshing the page
 - Check browser console for errors
 
 ### Sensors not working (iOS)
+
 - On iOS 13+, you need to explicitly enable sensors:
   - Click the **"Enable Sensors"** button that appears
   - Grant permission when prompted
@@ -252,42 +237,30 @@ FrameChecker/
 - Camera-only mode works fine if sensors aren't available
 
 ### Can't access back camera on iPhone
+
 - Make sure you check the **"Use Back Camera"** checkbox before starting
 - The back/environment camera provides better stability for viewing wall frames
 - You can also select specific cameras from the dropdown after they're enumerated
 
 ### Frames not detected
+
 - Ensure good lighting conditions
 - Move camera closer or farther from frames
 - Adjust detection sensitivity slider
 - Make sure frames have clear edges and are rectangular
 
 ### Jerky or unstable readings
+
 - The app includes automatic smoothing, but if readings are still unstable:
 - Hold the camera more steadily (smoothing handles minor shake)
 - Ensure the frame is clearly visible
 - Check that lighting is adequate
 - On devices without sensors, camera-only mode may be less stable
 
-### Performance issues
-- Close other applications using the camera
-- Use a device with better processing power
-- Lower the camera resolution (edit constraints in [camera.js](camera.js))
-
-### OpenCV.js fails to load
-- Check your internet connection (OpenCV.js is loaded from CDN)
-- Try refreshing the page
-- Check browser console for errors
-
 ## Future Enhancements
 
-**Recently Added:**
-- ✅ **Save snapshots of detected frames** - Download current view with measurements
-- ✅ **Adjustable smoothing settings** - Fine-tune stability vs responsiveness
-- ✅ **Multiple frame tracking over time** - Frame stability buffer averages measurements
-- ✅ **Mobile-optimized UI** - Responsive controls for mobile devices
-
 **Potential Future Additions:**
+
 - [ ] Export tilt measurements to CSV for data analysis
 - [ ] Calibration mode for device-specific accuracy improvements
 - [ ] Support for circular and oval frames (requires different detection algorithm)
@@ -300,10 +273,6 @@ FrameChecker/
 - No images or data are sent to any server
 - Camera access requires explicit user permission
 - Currently designed for localhost use only
-
-## License
-
-This project is provided as-is for educational and personal use.
 
 ## Credits
 
