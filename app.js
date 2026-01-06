@@ -15,6 +15,8 @@ const canvasOutput = document.getElementById('canvasOutput');
 const cameraSelect = document.getElementById('cameraSelect');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
+const enableSensorsBtn = document.getElementById('enableSensorsBtn');
+const useBackCameraCheckbox = document.getElementById('useBackCamera');
 const sensitivitySlider = document.getElementById('sensitivity');
 const sensitivityValue = document.getElementById('sensitivityValue');
 const statusText = document.getElementById('statusText');
@@ -39,7 +41,14 @@ async function initApp() {
     // Check sensor support and show info
     if (sensorManager.isSupported) {
         console.log('Device sensors supported');
-        updateStatus('Ready. Device sensors available for enhanced accuracy.', 'success');
+        
+        // On iOS 13+, show enable sensors button
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            enableSensorsBtn.style.display = 'inline-block';
+            updateStatus('Ready. Click "Enable Sensors" for enhanced accuracy (iOS).', 'success');
+        } else {
+            updateStatus('Ready. Device sensors available for enhanced accuracy.', 'success');
+        }
     } else {
         console.log('Device sensors not supported - using camera-only detection');
     }
@@ -87,11 +96,28 @@ function populateCameraSelect(cameras) {
 function setupEventListeners() {
     startBtn.addEventListener('click', startDetection);
     stopBtn.addEventListener('click', stopDetection);
+    enableSensorsBtn.addEventListener('click', requestSensorPermission);
     
     cameraSelect.addEventListener('change', async (e) => {
         if (isRunning) {
             try {
+                const facingMode = useBackCameraCheckbox.checked ? 'environment' : 'user';
                 await cameraManager.switchCamera(e.target.value);
+                updateStatus('Camera switched successfully.', 'success');
+            } catch (error) {
+                updateStatus(`Error switching camera: ${error.message}`, 'error');
+            }
+        }
+    });
+    
+    useBackCameraCheckbox.addEventListener('change', async (e) => {
+        if (isRunning) {
+            // Restart camera with new facing mode
+            try {
+                await cameraManager.stopCamera();
+                const facingMode = e.target.checked ? 'environment' : 'user';
+                await cameraManager.startCamera(null, facingMode);
+                await waitForVideoReady();
                 updateStatus('Camera switched successfully.', 'success');
             } catch (error) {
                 updateStatus(`Error switching camera: ${error.message}`, 'error');
@@ -107,29 +133,69 @@ function setupEventListeners() {
 }
 
 /**
+ * Request sensor permission (iOS 13+)
+ */
+async function requestSensorPermission() {
+    try {
+        updateStatus('Requesting sensor permission...', 'info');
+        const granted = await sensorManager.requestPermission();
+        
+        if (granted) {
+            enableSensorsBtn.style.display = 'none';
+            updateStatus('Sensor permission granted! Sensors will activate when camera starts.', 'success');
+        } else {
+            updateStatus('Sensor permission denied. App will work in camera-only mode.', 'info');
+        }
+    } catch (error) {
+        updateStatus(`Sensor permission error: ${error.message}`, 'error');
+        console.error('Sensor permission error:', error);
+    }
+}
+
+/**
  * Start camera and detection
  */
 async function startDetection() {
     try {
         updateStatus('Starting camera...', 'info');
         
+        // Determine camera to use
         const deviceId = cameraSelect.value;
-        await cameraManager.startCamera(deviceId);
+        const facingMode = useBackCameraCheckbox.checked ? 'environment' : 'user';
         
-        // Try to start sensors if supported
-        if (sensorManager.isSupported) {
+        // Start camera with facing mode preference
+        if (deviceId) {
+            await cameraManager.startCamera(deviceId);
+        } else {
+            await cameraManager.startCamera(null, facingMode);
+        }
+        
+        // Try to start sensors if supported and not already started
+        if (sensorManager.isSupported && !sensorManager.isActiveAndReady()) {
             try {
                 const sensorStarted = await sensorManager.start();
                 if (sensorStarted) {
                     console.log('Device sensors activated');
                     frameDetector.enableSensorFusion(sensorManager);
+                    updateStatus('Camera and sensors active!', 'success');
+                    if (enableSensorsBtn) {
+                        enableSensorsBtn.style.display = 'none';
+                    }
                 } else {
                     console.log('Sensors not available - using camera-only mode');
                 }
             } catch (error) {
                 console.warn('Could not start sensors:', error.message);
-                // Continue without sensors - camera-only mode
+                // Show enable button for iOS if permission issue
+                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    enableSensorsBtn.style.display = 'inline-block';
+                    updateStatus('Camera started. Click "Enable Sensors" for enhanced accuracy.', 'info');
+                }
             }
+        } else if (sensorManager.isActiveAndReady()) {
+            // Sensors already active
+            frameDetector.enableSensorFusion(sensorManager);
+            console.log('Using existing sensor connection');
         }
         
         // Wait for video to have valid dimensions

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Test - Back Camera Support</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        video {
+            width: 100%;
+            max-width: 640px;
+            border: 2px solid #333;
+            background: black;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Camera Facing Mode Test</h1>
+    <p>This page tests the camera facing mode selection (front vs back camera).</p>
+    
+    <div>
+        <button onclick="startCamera('user')">Start Front Camera</button>
+        <button onclick="startCamera('environment')">Start Back Camera</button>
+        <button onclick="stopCamera()">Stop Camera</button>
+    </div>
+    
+    <div class="info" id="status">Ready to test cameras</div>
+    
+    <video id="video" autoplay playsinline></video>
+    
+    <div class="info">
+        <h3>Current Camera Info:</h3>
+        <div id="cameraInfo">No camera active</div>
+    </div>
+    
+    <script>
+        const video = document.getElementById('video');
+        const status = document.getElementById('status');
+        const cameraInfo = document.getElementById('cameraInfo');
+        let currentStream = null;
+        
+        async function startCamera(facingMode) {
+            try {
+                stopCamera();
+                
+                status.textContent = `Starting ${facingMode} camera...`;
+                
+                const constraints = {
+                    video: {
+                        facingMode: { ideal: facingMode },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                };
+                
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = currentStream;
+                
+                // Get actual camera info
+                const track = currentStream.getVideoTracks()[0];
+                const settings = track.getSettings();
+                
+                status.textContent = `✓ Camera started successfully!`;
+                cameraInfo.innerHTML = `
+                    <strong>Label:</strong> ${track.label}<br>
+                    <strong>Facing Mode:</strong> ${settings.facingMode || 'unknown'}<br>
+                    <strong>Resolution:</strong> ${settings.width}x${settings.height}<br>
+                    <strong>Device ID:</strong> ${settings.deviceId}
+                `;
+                
+                console.log('Camera settings:', settings);
+            } catch (error) {
+                status.textContent = `❌ Error: ${error.message}`;
+                console.error('Camera error:', error);
+            }
+        }
+        
+        function stopCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+                video.srcObject = null;
+                cameraInfo.textContent = 'No camera active';
+                status.textContent = 'Camera stopped';
+            }
+        }
+    </script>
+</body>
+</html>

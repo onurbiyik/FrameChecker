@@ -33,9 +33,9 @@ class CameraManager {
     }
 
     /**
-     * Start camera with specified device ID
+     * Start camera with specified device ID or facing mode
      */
-    async startCamera(deviceId = null) {
+    async startCamera(deviceId = null, facingMode = null) {
         try {
             // Stop any existing stream
             this.stopCamera();
@@ -43,11 +43,21 @@ class CameraManager {
             const constraints = {
                 video: {
                     deviceId: deviceId ? { exact: deviceId } : undefined,
+                    facingMode: facingMode ? { ideal: facingMode } : undefined,
                     width: { ideal: 1280 },
                     height: { ideal: 720 }
                 },
                 audio: false
             };
+            
+            // If no deviceId specified but facingMode is requested, remove deviceId constraint
+            if (!deviceId && facingMode) {
+                delete constraints.video.deviceId;
+            }
+            // If deviceId is specified, remove facingMode to avoid conflicts
+            if (deviceId) {
+                delete constraints.video.facingMode;
+            }
 
             this.currentStream = await navigator.mediaDevices.getUserMedia(constraints);
             this.videoElement.srcObject = this.currentStream;

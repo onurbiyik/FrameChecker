@@ -7,10 +7,11 @@ Frame Checker now uses your device's built-in sensors (gyroscope/accelerometer) 
 
 ### On Mobile Devices (Recommended)
 1. Open `index.html` in your mobile browser (Chrome/Safari)
-2. Click **"Start Camera"**
-3. On iOS, grant permission for motion sensors when prompted
-4. Point camera at a picture frame on the wall
-5. You'll see:
+2. **Check "Use Back Camera"** to use your phone's rear camera (best for viewing walls)
+3. Click **"Start Camera"**
+4. **On iOS**: Click **"Enable Sensors"** button when it appears and grant permission
+5. Point camera at a picture frame on the wall
+6. You'll see:
    - Green box = Frame is level (±2°)
    - Yellow box = Slight tilt (2-5°)
    - Red box = Significant tilt (>5°)
@@ -54,8 +55,15 @@ Desktop computers don't have orientation sensors, so the app runs in camera-only
 
 ### iOS Permission Dialog
 - iOS 13+ requires explicit permission for motion sensors
-- Click "Allow" when prompted
+- You'll see an **"Enable Sensors"** button - click it
+- Then click "Allow" in the system dialog that appears
+- The button disappears once permission is granted
 - If you denied it: Settings > Safari > Motion & Orientation Access
+
+### Back Camera Not Working
+- Make sure you check the **"Use Back Camera"** checkbox BEFORE clicking "Start Camera"
+- The back camera (environment-facing) is ideal for checking frames on walls
+- On some devices, you can also manually select cameras from the dropdown
 
 ### Readings Still Jumpy
 - Try adjusting the sensitivity slider (5 is default)

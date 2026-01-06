@@ -124,8 +124,12 @@ The result: You can point your camera at a frame with slightly shaky hands and g
 ### Usage
 
 1. Click **"Start Camera"** to begin
-2. Select your camera from the dropdown if you have multiple cameras
-3. Point the camera at picture frames on a wall
+2. **On iPhone/Mobile**: 
+   - Check "Use Back Camera" to use the rear camera (recommended for wall frames)
+   - If prompted, grant camera and sensor permissions
+   - Click "Enable Sensors" button (iOS only) to activate gyroscope for better accuracy
+3. Select your camera from the dropdown if you have multiple cameras
+4. Point the camera at picture frames on a wall
 4. The app will:
    - Detect rectangular frames
    - Highlight them with colored boxes
@@ -233,10 +237,17 @@ FrameChecker/
 - Check browser console for errors
 
 ### Sensors not working (iOS)
-- On iOS 13+, you may need to grant motion/orientation permission
-- The app will request permission when starting
-- If denied, the app will work in camera-only mode
-- Check Settings > Safari > Motion & Orientation Access
+- On iOS 13+, you need to explicitly enable sensors:
+  - Click the **"Enable Sensors"** button that appears
+  - Grant permission when prompted
+  - The button will disappear once permission is granted
+- If you accidentally denied permission: Settings > Safari > Motion & Orientation Access
+- Camera-only mode works fine if sensors aren't available
+
+### Can't access back camera on iPhone
+- Make sure you check the **"Use Back Camera"** checkbox before starting
+- The back/environment camera provides better stability for viewing wall frames
+- You can also select specific cameras from the dropdown after they're enumerated
 
 ### Frames not detected
 - Ensure good lighting conditions
