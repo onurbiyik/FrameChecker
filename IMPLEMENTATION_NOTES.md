@@ -1,4 +1,29 @@
-# Sensor Fusion Enhancement - Implementation Summary
+# Implementation Notes & Changelog
+
+## Latest Update (January 2026)
+
+### New Features Added
+1. **Snapshot Capture**
+   - Added 📷 Save Snapshot button to capture current detection view
+   - Downloads PNG image with all tilt measurements and annotations
+   - Filename includes timestamp for easy organization
+   - Implemented in app.js as `saveSnapshot()` function
+
+2. **Adjustable Smoothing Controls**
+   - Added Smoothing Level slider (1-10 scale) to UI
+   - User can now control stability vs responsiveness trade-off
+   - Adjusts sensor smoothing parameters dynamically:
+     - Smoothing factor, buffer size, and deadband
+   - Also adjusts frame stability tracking window in detector
+   - Implemented `setSmoothingLevel()` in both sensor.js and detector.js
+
+### Completed from Previous Roadmap
+- ✅ Multiple frame tracking - Already implemented via frameStabilityBuffer
+- ✅ Mobile-optimized UI - Responsive controls already present
+- ✅ Save snapshots - Just added
+- ✅ Adjustable smoothing - Just added
+
+## Sensor Fusion Enhancement - Implementation Summary
 
 ## Overview
 Added device orientation sensor support to the Frame Checker app, enabling it to use gyroscope/accelerometer data in combination with camera-based detection for more accurate and stable tilt measurements.

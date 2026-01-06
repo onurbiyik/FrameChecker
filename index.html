@@ -37,7 +37,14 @@
             <div class="control-group">
                 <button id="startBtn" class="btn btn-primary">Start Camera</button>
                 <button id="stopBtn" class="btn btn-secondary" disabled>Stop Camera</button>
+                <button id="snapshotBtn" class="btn btn-secondary" disabled>📷 Save Snapshot</button>
                 <button id="enableSensorsBtn" class="btn btn-secondary" style="display:none;">Enable Sensors</button>
+            </div>
+            
+            <div class="control-group">
+                <label for="smoothing">Smoothing Level:</label>
+                <input type="range" id="smoothing" min="1" max="10" value="5">
+                <span id="smoothingValue">5</span>
             </div>
         </div>
 
@@ -64,6 +71,8 @@
                     </ul>
                 </li>
                 <li>Tilt information will be displayed on each frame</li>
+                <li>Click "📷 Save Snapshot" to save the current view with measurements</li>
+                <li>Adjust "Smoothing Level" for more stable (high) or responsive (low) readings</li>
             </ol>
         </div>
     </div>

@@ -11,7 +11,10 @@ Frame Checker now uses your device's built-in sensors (gyroscope/accelerometer) 
 3. Click **"Start Camera"**
 4. **On iOS**: Click **"Enable Sensors"** button when it appears and grant permission
 5. Point camera at a picture frame on the wall
-6. You'll see:
+6. Adjust **Detection Sensitivity** (1-10) if frames aren't being detected
+7. Adjust **Smoothing Level** (1-10) for preferred stability vs responsiveness
+8. Click **📷 Save Snapshot** to download the current view with measurements
+9. You'll see:
    - Green box = Frame is level (±2°)
    - Yellow box = Slight tilt (2-5°)
    - Red box = Significant tilt (>5°)
@@ -66,7 +69,10 @@ Desktop computers don't have orientation sensors, so the app runs in camera-only
 - On some devices, you can also manually select cameras from the dropdown
 
 ### Readings Still Jumpy
-- Try adjusting the sensitivity slider (5 is default)
+- Try adjusting the **Smoothing Level** slider (5 is default, 1 is maximum smoothing)
+- Lower smoothing level = more stable but slower to update
+- Higher smoothing level = more responsive but less stable
+- Try adjusting detection sensitivity slider (5 is default)
 - Ensure good lighting
 - Make sure the frame is clearly visible
 - The smoothing takes ~1 second to stabilize after pointing at a new frame

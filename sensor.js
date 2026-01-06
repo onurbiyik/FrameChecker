@@ -277,6 +277,26 @@ class SensorManager {
     setSmoothingFactor(factor) {
         this.smoothingFactor = Math.max(0.01, Math.min(1.0, factor));
     }
+    
+    /**
+     * Set smoothing level (1-10 scale, user-friendly)
+     * 1 = maximum smoothing (most stable, less responsive)
+     * 10 = minimum smoothing (most responsive, less stable)
+     */
+    setSmoothingLevel(level) {
+        level = Math.max(1, Math.min(10, level));
+        
+        // Convert 1-10 scale to appropriate parameters
+        // Level 1 (max smoothing): factor=0.05, buffer=15, deadband=1.0
+        // Level 5 (balanced): factor=0.15, buffer=10, deadband=0.5
+        // Level 10 (min smoothing): factor=0.4, buffer=5, deadband=0.2
+        
+        this.smoothingFactor = 0.05 + (level - 1) * 0.039; // 0.05 to 0.4
+        this.bufferSize = Math.round(20 - (level - 1) * 1.67); // 20 to 5
+        this.deadbandSize = 1.2 - (level - 1) * 0.11; // 1.2 to 0.2
+        
+        console.log(`Smoothing level ${level}: factor=${this.smoothingFactor.toFixed(3)}, buffer=${this.bufferSize}, deadband=${this.deadbandSize.toFixed(2)}`);
+    }
 
     /**
      * Set deadband size in degrees

@@ -16,8 +16,8 @@ A real-time web application that uses your camera and device sensors to detect p
   - **GREEN**: Perfectly vertical (±2°)
   - **YELLOW**: Slightly tilted (2°-5°)
   - **RED**: Significantly tilted (>5°)
-- ⚙️ **Adjustable Sensitivity** - Fine-tune detection for different environments
-- 🎯 **Stabilized Readings** - Hand shake doesn't affect measurements
+- ⚙️ **Adjustable Sensitivity** - Fine-tune detection for different environments- 🎚️ **Adjustable Smoothing** - Control stability vs responsiveness of measurements
+- 📷 **Snapshot Capture** - Save images with tilt measurements and annotations- 🎯 **Stabilized Readings** - Hand shake doesn't affect measurements
 
 ## How It Works
 
@@ -140,6 +140,13 @@ The result: You can point your camera at a frame with slightly shaky hands and g
    - Lower values (1-3): More strict detection
    - Medium values (4-6): Balanced (default is 5)
    - Higher values (7-10): More lenient detection
+
+6. Adjust **Smoothing Level** to control measurement stability:
+   - Lower values (1-3): Maximum smoothing, most stable readings
+   - Medium values (4-6): Balanced (default is 5)
+   - Higher values (7-10): Minimum smoothing, most responsive readings
+
+7. Click **📷 Save Snapshot** to download the current view with all tilt measurements and annotations
 
 ### Testing Sensors
 
@@ -274,14 +281,18 @@ FrameChecker/
 
 ## Future Enhancements
 
-- [ ] Save snapshots of detected frames
-- [ ] Export tilt measurements to CSV
-- [ ] Multiple frame tracking over time
-- [ ] Calibration mode for more accurate measurements
-- [ ] Support for circular and oval frames
-- [ ] Mobile-optimized UI
-- [ ] Adjustable smoothing settings
-- [ ] Historical tilt tracking graph
+**Recently Added:**
+- ✅ **Save snapshots of detected frames** - Download current view with measurements
+- ✅ **Adjustable smoothing settings** - Fine-tune stability vs responsiveness
+- ✅ **Multiple frame tracking over time** - Frame stability buffer averages measurements
+- ✅ **Mobile-optimized UI** - Responsive controls for mobile devices
+
+**Potential Future Additions:**
+- [ ] Export tilt measurements to CSV for data analysis
+- [ ] Calibration mode for device-specific accuracy improvements
+- [ ] Support for circular and oval frames (requires different detection algorithm)
+- [ ] Historical tilt tracking graph with real-time charts
+- [ ] AR overlay mode using WebXR for enhanced visualization
 
 ## Privacy & Security
 

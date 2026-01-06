@@ -17,10 +17,13 @@ const canvasOutput = document.getElementById('canvasOutput');
 const cameraSelect = document.getElementById('cameraSelect');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
+const snapshotBtn = document.getElementById('snapshotBtn');
 const enableSensorsBtn = document.getElementById('enableSensorsBtn');
 const useBackCameraCheckbox = document.getElementById('useBackCamera');
 const sensitivitySlider = document.getElementById('sensitivity');
 const sensitivityValue = document.getElementById('sensitivityValue');
+const smoothingSlider = document.getElementById('smoothing');
+const smoothingValue = document.getElementById('smoothingValue');
 const statusText = document.getElementById('statusText');
 const framesDetectedText = document.getElementById('framesDetected');
 
@@ -98,6 +101,7 @@ function populateCameraSelect(cameras) {
 function setupEventListeners() {
     startBtn.addEventListener('click', startDetection);
     stopBtn.addEventListener('click', stopDetection);
+    snapshotBtn.addEventListener('click', saveSnapshot);
     enableSensorsBtn.addEventListener('click', requestSensorPermission);
     
     cameraSelect.addEventListener('change', async (e) => {
@@ -131,6 +135,17 @@ function setupEventListeners() {
         const value = e.target.value;
         sensitivityValue.textContent = value;
         frameDetector.setSensitivity(parseInt(value));
+    });
+    
+    smoothingSlider.addEventListener('input', (e) => {
+        const value = e.target.value;
+        smoothingValue.textContent = value;
+        if (sensorManager) {
+            sensorManager.setSmoothingLevel(parseInt(value));
+        }
+        if (frameDetector) {
+            frameDetector.setSmoothingLevel(parseInt(value));
+        }
     });
 }
 
@@ -206,6 +221,7 @@ async function startDetection() {
         isRunning = true;
         startBtn.disabled = true;
         stopBtn.disabled = false;
+        snapshotBtn.disabled = false;
         cameraSelect.disabled = false;
         
         updateStatus('Detection running. Point camera at picture frames.', 'success');
@@ -259,6 +275,7 @@ function stopDetection() {
     
     startBtn.disabled = false;
     stopBtn.disabled = true;
+    snapshotBtn.disabled = true;
     cameraSelect.disabled = false;
     
     // Clear canvas
@@ -267,6 +284,46 @@ function stopDetection() {
     
     updateStatus('Detection stopped.', 'info');
     updateFrameCount(0);
+}
+
+/**
+ * Save a snapshot of the current detection view
+ */
+function saveSnapshot() {
+    if (!isRunning || !canvasOutput) {
+        updateStatus('Cannot save snapshot - detection not running', 'error');
+        return;
+    }
+    
+    try {
+        // Get the current canvas content with all the annotations
+        const dataUrl = canvasOutput.toDataURL('image/png');
+        
+        // Create a timestamp for the filename
+        const now = new Date();
+        const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, -5);
+        const filename = `frame-checker-${timestamp}.png`;
+        
+        // Create a temporary link and trigger download
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        updateStatus(`Snapshot saved as ${filename}`, 'success');
+        
+        // Reset status after a few seconds
+        setTimeout(() => {
+            if (isRunning) {
+                updateStatus('Detection running. Point camera at picture frames.', 'success');
+            }
+        }, 3000);
+    } catch (error) {
+        updateStatus(`Error saving snapshot: ${error.message}`, 'error');
+        console.error('Snapshot error:', error);
+    }
 }
 
 /**

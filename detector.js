@@ -557,6 +557,25 @@ class FrameDetector {
     setSensitivity(value) {
         this.sensitivity = Math.max(1, Math.min(10, value));
     }
+    
+    /**
+     * Set smoothing level (1-10 scale, user-friendly)
+     * Adjusts frame stability tracking window
+     * 1 = maximum smoothing (most stable, slower to update)
+     * 10 = minimum smoothing (most responsive, faster updates)
+     */
+    setSmoothingLevel(level) {
+        level = Math.max(1, Math.min(10, level));
+        
+        // Convert 1-10 scale to stability window size
+        // Level 1 (max smoothing): window=20 measurements
+        // Level 5 (balanced): window=10 measurements
+        // Level 10 (min smoothing): window=3 measurements
+        
+        this.frameStabilityWindow = Math.round(22 - (level - 1) * 2.1); // 20 to 3
+        
+        console.log(`Frame smoothing level ${level}: stability window=${this.frameStabilityWindow} measurements`);
+    }
 
     /**
      * Set minimum contour area
